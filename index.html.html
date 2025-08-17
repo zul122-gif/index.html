@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pengumpulan Tugas Sekolah</title>
+  <meta name="description" content="Website sederhana untuk pengumpulan tugas siswa – satu file HTML dengan CSS & JS." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1020; --card:#121830; --muted:#8fa2c6; --text:#e9efff; --accent:#6aa5ff; --accent-2:#22d3ee; --danger:#ef4444;
+      --ring: 0 0 0 2px rgba(106,165,255,.45), 0 10px 25px -10px rgba(34,211,238,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 10% -10%,rgba(34,211,238,.08),transparent),radial-gradient(1000px 500px at 120% 10%, rgba(106,165,255,.10), transparent), var(--bg); color:var(--text)}
+    a{color:var(--accent)}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:var(--ring)}
+    h1{font-size:clamp(20px,3vw,28px);margin:0}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 40px -30px rgba(0,0,0,.6)}
+    .grid{display:grid;gap:18px}
+    @media(min-width:900px){
+      .grid-2{grid-template-columns:1.1fr .9fr}
+    }
+    label{display:block;font-weight:600;margin-bottom:6px;color:var(--muted)}
+    input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0e1428;color:var(--text);outline:none}
+    textarea{min-height:110px;resize:vertical}
+    input:focus,select:focus,textarea:focus{box-shadow:var(--ring);border-color:transparent}
+    .row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .btn{appearance:none;border:none;padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#001025;box-shadow:var(--ring)}
+    .btn-muted{background:#0e1428;color:var(--text);border:1px solid rgba(255,255,255,.12)}
+    .btn-danger{background:linear-gradient(135deg,#ef4444,#fb7185);color:#fff}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    .dropzone{border:1.5px dashed rgba(255,255,255,.2);border-radius:14px;padding:18px;display:flex;gap:12px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.02)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:#0e1428;color:var(--muted)}
+    table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:0 10px}
+    td{background:#0e1428;border:1px solid rgba(255,255,255,.12);padding:12px;border-left:none;border-right:none}
+    tr{border-radius:12px}
+    tr td:first-child{border-radius:12px 0 0 12px;border-left:1px solid rgba(255,255,255,.12)}
+    tr td:last-child{border-radius:0 12px 12px 0;border-right:1px solid rgba(255,255,255,.12)}
+    .status{font-weight:700}
+    .status.sukses{color:#34d399}
+    .status.ditolak{color:#fb7185}
+    .status.draft{color:#fbbf24}
+    .hide{display:none}
+    .badge{padding:6px 10px;border-radius:999px;background:rgba(106,165,255,.12);border:1px solid rgba(106,165,255,.25);color:#cfe2ff;font-weight:700}
+    .pill{font-weight:700;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:#0e1428}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
+    .error{color:var(--danger);font-size:13px;margin-top:6px}
+    .success{color:#22c55e;font-size:13px;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Portal Pengumpulan Tugas</h1>
+          <div class="muted">Satu halaman sederhana untuk login & unggah tugas</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button id="btnLogout" class="btn btn-muted hide">Keluar</button>
+        <span id="userBadge" class="badge hide"></span>
+      </div>
+    </header>
+
+    <!-- SECTION: Login -->
+    <section id="loginCard" class="card">
+      <h2 style="margin-top:0">Masuk Akun Siswa</h2>
+      <p class="muted" style="margin-top:-6px">Data login disimpan lokal di peramban Anda (localStorage) – tanpa server.</p>
+      <div class="row">
+        <div>
+          <label for="nama">Nama Lengkap</label>
+          <input id="nama" type="text" placeholder="cth: Putri Lestari" autocomplete="name" required />
+        </div>
+        <div>
+          <label for="kelas">Kelas</label>
+          <input id="kelas" type="text" placeholder="cth: XII IPA 1" required />
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label for="nis">NIS (opsional)</label>
+          <input id="nis" type="text" placeholder="cth: 20251234" />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="cth: putri@sekolah.sch.id" required />
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+        <button id="btnLogin" class="btn btn-primary">Masuk</button>
+        <span class="muted">Tip: Setelah masuk, form pengumpulan tugas akan muncul.</span>
+      </div>
+      <div id="loginMsg" class="error" aria-live="polite"></div>
+    </section>
+
+    <div class="grid grid-2" style="margin-top:18px">
+      <!-- SECTION: Submission Form -->
+      <section id="submitCard" class="card hide">
+        <h2 style="margin-top:0">Form Pengumpulan</h2>
+        <div class="row">
+          <div>
+            <label for="mapel">Mata Pelajaran</label>
+            <select id="mapel">
+              <option value="">— Pilih —</option>
+              <option>Matematika</option>
+              <option>Bahasa Indonesia</option>
+              <option>Bahasa Inggris</option>
+              <option>Fisika</option>
+              <option>Kimia</option>
+              <option>Biologi</option>
+              <option>Sejarah</option>
+              <option>Geografi</option>
+              <option>Ekonomi</option>
+              <option>PKN</option>
+              <option>Informatika</option>
+            </select>
+          </div>
+          <div>
+            <label for="judul">Judul Tugas</label>
+            <input id="judul" type="text" placeholder="cth: Laporan Praktikum" />
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <label for="catatan">Catatan (opsional)</label>
+          <textarea id="catatan" placeholder="Tambahkan catatan untuk guru ..."></textarea>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Berkas Tugas</label>
+          <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Unggah berkas dengan drag & drop atau klik">
+            <div>
+              <div style="font-weight:700">Tarik & letakkan berkas di sini, atau klik untuk pilih</div>
+              <div class="muted">Format: PDF, DOCX, PPTX, XLSX, ZIP, JPG/PNG • Maks 20 MB</div>
+            </div>
+            <input id="file" type="file" class="hide" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.jpg,.jpeg,.png" />
+          </div>
+          <div id="fileInfo" class="chips"></div>
+          <div id="fileError" class="error"></div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="btnKirim" class="btn btn-primary">Kirim Tugas</button>
+          <button id="btnResetForm" class="btn btn-muted" type="button">Bersihkan</button>
+          <span class="muted">Catatan: Demo ini menyimpan data di peramban Anda. Untuk pengumpulan nyata, hubungkan ke server (Google Forms/Firebase/Backend sekolah).</span>
+        </div>
+        <div id="submitMsg" class="success" aria-live="polite"></div>
+      </section>
+
+      <!-- SECTION: Submission List -->
+      <section id="listCard" class="card hide">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <h2 style="margin:0">Riwayat Pengumpulan</h2>
+          <div class="toolbar">
+            <button id="btnExport" class="btn btn-muted" title="Ekspor CSV">Ekspor CSV</button>
+            <button id="btnHapusSemua" class="btn btn-danger" title="Bersihkan data lokal">Hapus Semua</button>
+          </div>
+        </div>
+        <div class="muted" style="margin:6px 0 12px">Data hanya tersimpan di perangkat ini (localStorage).</div>
+        <div style="overflow:auto">
+          <table id="tabel">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Mapel</th>
+                <th>Judul</th>
+                <th>Nama</th>
+                <th>Kelas</th>
+                <th>Berkas</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="footer">Ingin versi dengan penyimpanan server? Ganti fungsi <code>saveSubmission()</code> ke API sekolah / Google Apps Script / Firebase.</div>
+      </section>
+    </div>
+
+    <footer class="footer">© <span id="year"></span> Portal Pengumpulan Tugas • Satu file HTML – bebas dikembangkan.</footer>
+  </div>
+
+  <script>
+    // ===== Utilities =====
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const fmtSize = b => {
+      if(b < 1024) return b + ' B';
+      if(b < 1024**2) return (b/1024).toFixed(1)+' KB';
+      if(b < 1024**3) return (b/1024**2).toFixed(1)+' MB';
+      return (b/1024**3).toFixed(2)+' GB';
+    };
+    const nowISO = () => new Date().toISOString();
+    const loadUser = () => JSON.parse(localStorage.getItem('portal:user')||'null');
+    const saveUser = (u) => localStorage.setItem('portal:user', JSON.stringify(u));
+    const loadSubs = () => JSON.parse(localStorage.getItem('portal:subs')||'[]');
+    const saveSubs = (arr) => localStorage.setItem('portal:subs', JSON.stringify(arr));
+
+    // ===== Elements =====
+    const loginCard = $('#loginCard');
+    const submitCard = $('#submitCard');
+    const listCard = $('#listCard');
+    const btnLogin = $('#btnLogin');
+    const btnLogout = $('#btnLogout');
+    const userBadge = $('#userBadge');
+    const loginMsg = $('#loginMsg');
+
+    const nama = $('#nama');
+    const kelas = $('#kelas');
+    const nis = $('#nis');
+    const email = $('#email');
+
+    const mapel = $('#mapel');
+    const judul = $('#judul');
+    const catatan = $('#catatan');
+
+    const dropzone = $('#dropzone');
+    const fileInput = $('#file');
+    const fileInfo = $('#fileInfo');
+    const fileError = $('#fileError');
+
+    const btnKirim = $('#btnKirim');
+    const btnResetForm = $('#btnResetForm');
+
+    const tbody = $('#tbody');
+    const btnHapusSemua = $('#btnHapusSemua');
+    const btnExport = $('#btnExport');
+
+    const MAX_MB = 20; // batas ukuran file
+
+    let pickedFile = null; // File yang dipilih untuk dikirim
+
+    // ===== UI State =====
+    function setAuthUI(user){
+      if(user){
+        loginCard.classList.add('hide');
+        submitCard.classList.remove('hide');
+        listCard.classList.remove('hide');
+        btnLogout.classList.remove('hide');
+        userBadge.classList.remove('hide');
+        userBadge.textContent = `${user.nama} • ${user.kelas}`;
+        nama.value = user.nama || '';
+        kelas.value = user.kelas || '';
+        nis.value = user.nis || '';
+        email.value = user.email || '';
+      }else{
+        loginCard.classList.remove('hide');
+        submitCard.classList.add('hide');
+        listCard.classList.add('hide');
+        btnLogout.classList.add('hide');
+        userBadge.classList.add('hide');
+      }
+    }
+
+    // ===== Login/Logout =====
+    btnLogin.addEventListener('click', () => {
+      loginMsg.textContent = '';
+      const u = {
+        nama: nama.value.trim(),
+        kelas: kelas.value.trim(),
+        nis: nis.value.trim(),
+        email: email.value.trim()
+      };
+      if(!u.nama || !u.kelas || !u.email){
+        loginMsg.textContent = 'Nama, Kelas, dan Email wajib diisi.';
+        return;
+      }
+      // validasi email sederhana
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(u.email)){
+        loginMsg.textContent = 'Format email tidak valid.';
+        return;
+      }
+      saveUser(u);
+      setAuthUI(u);
+      renderTable();
+    });
+
+    btnLogout.addEventListener('click', () => {
+      localStorage.removeItem('portal:user');
+      setAuthUI(null);
+    });
+
+    // ===== Dropzone =====
+    const openPicker = () => fileInput.click();
+    ['click','keydown'].forEach(evt => dropzone.addEventListener(evt, e => {
+      if(evt==='keydown' && !(e.key==='Enter' || e.key===' ')) return;
+      e.preventDefault();
+      openPicker();
+    }));
+
+    ;['dragenter','dragover'].forEach(evt => dropzone.addEventListener(evt, e=>{
+      e.preventDefault();
+      dropzone.style.boxShadow = 'var(--ring)';
+    }));
+
+    ;['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e=>{
+      e.preventDefault();
+      dropzone.style.boxShadow = '';
+    }));
+
+    dropzone.addEventListener('drop', e => {
+      const f = e.dataTransfer.files?.[0];
+      if(f) handlePickedFile(f);
+    });
+
+    fileInput.addEventListener('change', e => {
+      const f = e.target.files?.[0];
+      if(f) handlePickedFile(f);
+    });
+
+    function handlePickedFile(f){
+      fileError.textContent = '';
+      const allowed = ['pdf','doc','docx','ppt','pptx','xls','xlsx','zip','jpg','jpeg','png'];
+      const ext = f.name.split('.').pop().toLowerCase();
+      const okType = allowed.includes(ext);
+      const okSize = f.size <= MAX_MB * 1024 * 1024;
+      if(!okType){
+        fileError.textContent = 'Tipe berkas tidak didukung.';
+        pickedFile = null; fileInfo.innerHTML='';
+        return;
+      }
+      if(!okSize){
+        fileError.textContent = `Ukuran berkas melebihi ${MAX_MB} MB.`;
+        pickedFile = null; fileInfo.innerHTML='';
+        return;
+      }
+      pickedFile = f;
+      const chip = `<span class="chip">${f.name} • ${fmtSize(f.size)}</span>`;
+      fileInfo.innerHTML = chip;
+    }
+
+    // ===== Kirim =====
+    btnKirim.addEventListener('click', async () => {
+      $('#submitMsg').textContent='';
+      if(!loadUser()){
+        alert('Silakan login terlebih dahulu.');
+        return;
+      }
+      if(!mapel.value || !judul.value.trim()){
+        alert('Mapel dan Judul wajib diisi.');
+        return;
+      }
+      if(!pickedFile){
+        alert('Pilih berkas tugas terlebih dahulu.');
+        return;
+      }
+
+      const user = loadUser();
+      const sub = {
+        id: crypto.randomUUID(),
+        waktu: nowISO(),
+        mapel: mapel.value,
+        judul: judul.value.trim(),
+        catatan: catatan.value.trim(),
+        nama: user.nama,
+        kelas: user.kelas,
+        fileName: pickedFile.name,
+        fileSize: pickedFile.size,
+        fileType: pickedFile.type || 'unknown',
+        // Simpan URL sementara agar bisa diunduh selama tab aktif
+        fileUrl: URL.createObjectURL(pickedFile),
+        status: 'Terkirim'
+      };
+
+      // Simpan metadata ke localStorage (bukan isi file)
+      const arr = loadSubs();
+      arr.unshift(sub);
+      saveSubs(arr);
+
+      // Reset form
+      mapel.value = '';
+      judul.value = '';
+      catatan.value = '';
+      pickedFile = null;
+      fileInfo.innerHTML = '';
+
+      renderTable();
+      $('#submitMsg').textContent = 'Tugas berhasil dicatat (demo lokal).';
+    });
+
+    btnResetForm.addEventListener('click', () => {
+      mapel.value = '';
+      judul.value = '';
+      catatan.value = '';
+      pickedFile = null;
+      fileInfo.innerHTML = '';
+      fileError.textContent = '';
+    });
+
+    // ===== Table render =====
+    function renderTable(){
+      const data = loadSubs();
+      tbody.innerHTML = '';
+      if(data.length === 0){
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 8; td.className='muted';
+        td.textContent = 'Belum ada pengumpulan.';
+        tr.appendChild(td); tbody.appendChild(tr);
+        return;
+      }
+      for(const r of data){
+        const tr = document.createElement('tr');
+        const waktu = new Date(r.waktu);
+        tr.innerHTML = `
+          <td>${waktu.toLocaleString()}</td>
+          <td>${r.mapel}</td>
+          <td>${r.judul}</td>
+          <td>${r.nama}</td>
+          <td>${r.kelas}</td>
+          <td>${r.fileName} • ${fmtSize(r.fileSize)}</td>
+          <td class="status sukses">${r.status}</td>
+          <td>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a class="pill" href="${r.fileUrl||'#'}" download="${r.fileName}" target="_blank" rel="noopener">Unduh</a>
+              <button class="pill" data-act="hapus" data-id="${r.id}">Hapus</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    tbody.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const id = btn.getAttribute('data-id');
+      const act = btn.getAttribute('data-act');
+      if(act==='hapus'){
+        const arr = loadSubs().filter(x => x.id !== id);
+        saveSubs(arr);
+        renderTable();
+      }
+    });
+
+    // ===== Export CSV =====
+    btnExport.addEventListener('click', () => {
+      const data = loadSubs();
+      if(data.length===0){ alert('Tidak ada data untuk diekspor.'); return; }
+      const headers = ['id','waktu','mapel','judul','nama','kelas','fileName','fileSize','fileType','status'];
+      const rows = [headers.join(',')].concat(
+        data.map(r=> headers.map(h=> JSON.stringify((r[h]??'').toString().replaceAll('\n',' '))).join(','))
+      ).join('\n');
+      const blob = new Blob([rows], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'pengumpulan_tugas.csv'; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    });
+
+    // ===== Hapus Semua =====
+    btnHapusSemua.addEventListener('click', () => {
+      if(confirm('Yakin ingin menghapus semua data lokal pengumpulan?')){
+        saveSubs([]); renderTable();
+      }
+    });
+
+    // ===== Init =====
+    $('#year').textContent = new Date().getFullYear();
+    const user = loadUser();
+    setAuthUI(user);
+    if(user) renderTable();
+  </script>
+</body>
+</html>
